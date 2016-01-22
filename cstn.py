@@ -127,7 +127,7 @@ class CancerousTumorParser:
 					tumor = ''
 				elif char == '{':
 					reading = TumorType.list
-					tumor = []
+					tumor = HashableList()
 				elif char == '[':
 					reading = TumorType.tuple
 					tumor = []
@@ -138,12 +138,12 @@ class CancerousTumorParser:
 					reading = TumorType.number
 					tumor = char
 				else:
-					raise ValueError('CSTN is bad or parser is bugged (probably both)'.format())
+					raise ValueError('CSTN syntax is invalid, or the parser is bugged (probably both)')
 			i += 1
 		raise ValueError('CSTN is truncated in {}'.format(reading))
 
 	def parse_number(self, text):
-		'''parses a number in a string that has a CSTN suffix'''
+		'''Parses a string as a suffixed CSTN number'''
 
 		base = text[-1]
 		text = text[:-1]
