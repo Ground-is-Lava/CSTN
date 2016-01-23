@@ -3,8 +3,8 @@ CancerScript Tumor Notation is a lightweight data-interchange format. It is anno
 
 A CancerScript Tumor Notation file contains a tumor, which may or may not contain additional tumors. There are 2 tumor types:
 
- * a malignant tumor is an object, such as a list or a string
  * a benign tumor is a comment
+ * a malignant tumor is an object, such as a list or a string
 
 Malignant tumors can identify as any of the following types (but only 1 at once):
 
@@ -57,5 +57,5 @@ As you can (not) see in the examples above, there are no commas (except to start
 	{
 		FFhFFh1234d
 		(,key',value')
-		({«hello»«world»,the previous dictionary is the key for this value')
+		({«hello»«world»,the previous list is the key for this value')
 	}
