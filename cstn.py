@@ -62,7 +62,26 @@ class CharStream:
 		self.i += 1
 		return char
 
-	def skip(self, i):
+	def peek_past_whitespace(self):
+		'''
+		Skips whitespace characters and returns the first non-whitespace character found
+		The stream's cursor is set to read this character again
+		'''
+		char = self.read_past_whitespace()
+		self.seek_relative(-1)
+		return char
+
+	def read_past_whitespace(self):
+		'''
+		Skips whitespace characters and returns the first non-whitespace character found
+		The stream's cursor is set to right after this character
+		'''
+		char = self.read()
+		while char in WHITESPACE:
+			char = self.read()
+		return char
+
+	def seek_relative(self, i):
 		self.i += i
 
 WHITESPACE = ' \n\t'
@@ -79,22 +98,10 @@ class CancerScriptTumorNotationParser:
 		'''parse self.text pls'''
 		return self.parse_tumor()
 
-	def skip_whitespace(self):
-		'''skippin' whitespace, man'''
-		char = self.stream.read()
-		while char in WHITESPACE:
-			char = self.stream.read()
-		return char
-
-	def skip_whitespace_peek(self):
-		char = self.skip_whitespace()
-		self.stream.i -= 1
-		return char
-
 	def parse_tumor(self):
 		'''parses a tumor (recursive)'''
 
-		char = self.skip_whitespace()
+		char = self.stream.read_past_whitespace()
 
 		if char == ',':
 			return self.parse_tumor_string("'")
@@ -128,9 +135,9 @@ class CancerScriptTumorNotationParser:
 	def parse_tumor_list(self, endchar):
 		tumor = HashableList()
 		while True:
-			char = self.skip_whitespace_peek()
+			char = self.stream.peek_past_whitespace()
 			if char == endchar:
-				self.stream.skip(1)
+				self.stream.seek_relative(1)
 				return tumor
 			tumor2 = self.parse_tumor()
 			tumor.append(tumor2)
@@ -138,12 +145,12 @@ class CancerScriptTumorNotationParser:
 	def parse_tumor_dictionary(self, endchar):
 		tumor = HashableDict()
 		while True:
-			char = self.skip_whitespace_peek()
+			char = self.stream.peek_past_whitespace()
 			if char == endchar:
-				self.stream.skip(1)
+				self.stream.seek_relative(1)
 				return tumor
 			key = self.parse_tumor()
-			self.skip_whitespace_peek()
+			self.stream.peek_past_whitespace()
 			value = self.parse_tumor()
 			tumor[key] = value
 
