@@ -69,77 +69,79 @@ class CancerousTumorParser:
 
 		reading = TumorType.none
 		tumor = None
-		text_len = len(self.text)
-		while i < text_len:
+
+		char = self.text[i]
+
+		if reading == TumorType.none:
+			char, i = self.consume_whitespace(i)
+
+			if char == ',':
+				reading = TumorType.string
+				tumor = ''
+			elif char == '«':
+				reading = TumorType.le_string
+				tumor = ''
+			elif char == '{':
+				reading = TumorType.list
+				tumor = HashableList()
+			elif char == '[':
+				reading = TumorType.tuple
+				tumor = []
+			elif char == '(':
+				reading = TumorType.dict
+				tumor = HashableDict()
+			elif char in DIGITS:
+				reading = TumorType.number
+				tumor = char
+			else:
+				raise ValueError('CSTN syntax is invalid, or the parser is bugged (probably both)')
+
+			i += 1
 			char = self.text[i]
 
-			if reading == TumorType.none:
-				char, i = self.consume_whitespace(i)
-
-			if (reading == TumorType.string) or (reading == TumorType.le_string):
-				while True:
-					if char == '|':
-						i += 1
-						char = self.text[i]
-						if char == 'n':
-							char = '\n'
-						elif char == 't':
-							char = '\t'
-					elif (char == '\'' and reading == TumorType.string) or (char == '»' and reading == TumorType.le_string):
-						i += 1
-						return (tumor, i)
-					tumor += char
+		if (reading == TumorType.string) or (reading == TumorType.le_string):
+			while True:
+				if char == '|':
 					i += 1
 					char = self.text[i]
-			elif (reading == TumorType.list) or (reading == TumorType.tuple):
-				while True:
-					char, i = self.consume_whitespace(i)
-					if (char == '}') and (reading == TumorType.list):
-						return (tumor, i + 1)
-					elif (char == ']') and (reading == TumorType.tuple):
-						return (tuple(tumor), i + 1)
-					tumor2, i = self.parse_tumor(i)
-					tumor.append(tumor2)
-			elif reading == TumorType.dict:
-				while True:
-					char, i = self.consume_whitespace(i)
-					if char == ')':
-						return (tumor, i + 1)
-					key, i = self.parse_tumor(i)
-					char, i = self.consume_whitespace(i)
-					value, i = self.parse_tumor(i)
-					tumor[key] = value
-			elif reading == TumorType.number:
-				while char in DIGITS:
-					tumor += char
+					if char == 'n':
+						char = '\n'
+					elif char == 't':
+						char = '\t'
+				elif (char == '\'' and reading == TumorType.string) or (char == '»' and reading == TumorType.le_string):
 					i += 1
-					char = self.text[i]
+					return (tumor, i)
 				tumor += char
 				i += 1
-				number = self.parse_number(tumor)
-				return number, i
-			else:
-				if char == ',':
-					reading = TumorType.string
-					tumor = ''
-				elif char == '«':
-					reading = TumorType.le_string
-					tumor = ''
-				elif char == '{':
-					reading = TumorType.list
-					tumor = HashableList()
-				elif char == '[':
-					reading = TumorType.tuple
-					tumor = []
-				elif char == '(':
-					reading = TumorType.dict
-					tumor = HashableDict()
-				elif char in DIGITS:
-					reading = TumorType.number
-					tumor = char
-				else:
-					raise ValueError('CSTN syntax is invalid, or the parser is bugged (probably both)')
+				char = self.text[i]
+		elif (reading == TumorType.list) or (reading == TumorType.tuple):
+			while True:
+				char, i = self.consume_whitespace(i)
+				if (char == '}') and (reading == TumorType.list):
+					return (tumor, i + 1)
+				elif (char == ']') and (reading == TumorType.tuple):
+					return (tuple(tumor), i + 1)
+				tumor2, i = self.parse_tumor(i)
+				tumor.append(tumor2)
+		elif reading == TumorType.dict:
+			while True:
+				char, i = self.consume_whitespace(i)
+				if char == ')':
+					return (tumor, i + 1)
+				key, i = self.parse_tumor(i)
+				char, i = self.consume_whitespace(i)
+				value, i = self.parse_tumor(i)
+				tumor[key] = value
+		elif reading == TumorType.number:
+			while char in DIGITS:
+				tumor += char
+				i += 1
+				char = self.text[i]
+			tumor += char
 			i += 1
+			number = self.parse_number(tumor)
+			return number, i
+
 		raise ValueError('CSTN is truncated in {}'.format(reading))
 
 	def parse_number(self, text):
