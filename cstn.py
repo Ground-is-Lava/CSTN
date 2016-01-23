@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
+# coding=UTF-8
 '''This is the amazing CancerScript Tumor Notation module'''
+
+# Python 2 compatibility
+from __future__ import division, print_function, unicode_literals
 
 from enum import Enum
 
-def loads(text: str):
+def loads(text):
 	'''Parses CSTN from a string and gives you back a nifty object'''
 	return CancerScriptTumorNotationParser(text).parse()
 
