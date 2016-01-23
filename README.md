@@ -57,5 +57,5 @@ As you can (not) see in the examples above, there are no commas (except to start
 	{
 		FFhFFh1234d
 		(,key',value')
-		({«hello»«world»,the previous list is the key for this value')
+		({«hello»«world»},the previous list is the key for this value')
 	}
