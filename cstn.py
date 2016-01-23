@@ -67,6 +67,8 @@ class CharStream:
 
 WHITESPACE = ' \n\t'
 DIGITS = '0123456789ABCDEF'
+ESCAPE_CHAR = '|'
+
 class CancerScriptTumorNotationParser:
 	'''this crap parses CancerScript Tumer Notation'''
 
@@ -92,73 +94,66 @@ class CancerScriptTumorNotationParser:
 	def parse_tumor(self):
 		'''parses a tumor (recursive)'''
 
-		reading = TumorType.none
-		tumor = None
-
 		char = self.skip_whitespace()
 
 		if char == ',':
-			reading = TumorType.string
-			tumor = ''
+			return self.parse_tumor_string("'")
 		elif char == '«':
-			reading = TumorType.le_string
-			tumor = ''
+			return self.parse_tumor_string('»')
 		elif char == '{':
-			reading = TumorType.list
-			tumor = HashableList()
+			return self.parse_tumor_list('}')
 		elif char == '[':
-			reading = TumorType.tuple
-			tumor = []
+			return tuple(self.parse_tumor_list(']'))
 		elif char == '(':
-			reading = TumorType.dict
-			tumor = HashableDict()
+			return self.parse_tumor_dictionary(')')
 		elif char in DIGITS:
-			reading = TumorType.number
-			tumor = char
-		else:
-			raise ValueError('CSTN syntax is invalid, or the parser is bugged (probably both)')
+			return self.parse_tumor_number(char)
 
-		if (reading == TumorType.string) or (reading == TumorType.le_string):
-			while True:
-				char = self.stream.read()
-				if char == '|':
-					char = self.stream.read()
-					if char == 'n':
-						char = '\n'
-					elif char == 't':
-						char = '\t'
-				elif (char == '\'' and reading == TumorType.string) or (char == '»' and reading == TumorType.le_string):
-					return tumor
-				tumor += char
-		elif (reading == TumorType.list) or (reading == TumorType.tuple):
-			while True:
-				char = self.skip_whitespace_peek()
-				if (char == '}') and (reading == TumorType.list):
-					self.stream.skip(1)
-					return tumor
-				elif (char == ']') and (reading == TumorType.tuple):
-					self.stream.skip(1)
-					return tuple(tumor)
-				tumor2 = self.parse_tumor()
-				tumor.append(tumor2)
-		elif reading == TumorType.dict:
-			while True:
-				char = self.skip_whitespace_peek()
-				if char == ')':
-					self.stream.skip(1)
-					return tumor
-				key = self.parse_tumor()
-				self.skip_whitespace_peek()
-				value = self.parse_tumor()
-				tumor[key] = value
-		elif reading == TumorType.number:
-			while char in DIGITS:
-				char = self.stream.read()
-				tumor += char
-			number = self.parse_number(tumor)
-			return number
+		raise ValueError('CSTN syntax is invalid (unexpected character: {})'.format(repr(char)))
 
-		raise ValueError('CSTN is truncated in {}'.format(reading))
+	def parse_tumor_string(self, endchar):
+		tumor = ''
+		while True:
+			char = self.stream.read()
+			if char == endchar:
+				return tumor
+			if char == ESCAPE_CHAR:
+				char = self.stream.read()
+				if char == 'n':
+					char = '\n'
+				elif char == 't':
+					char = '\t'
+			tumor += char
+
+	def parse_tumor_list(self, endchar):
+		tumor = HashableList()
+		while True:
+			char = self.skip_whitespace_peek()
+			if char == endchar:
+				self.stream.skip(1)
+				return tumor
+			tumor2 = self.parse_tumor()
+			tumor.append(tumor2)
+
+	def parse_tumor_dictionary(self, endchar):
+		tumor = HashableDict()
+		while True:
+			char = self.skip_whitespace_peek()
+			if char == endchar:
+				self.stream.skip(1)
+				return tumor
+			key = self.parse_tumor()
+			self.skip_whitespace_peek()
+			value = self.parse_tumor()
+			tumor[key] = value
+
+	def parse_tumor_number(self, char):
+		tumor = char
+		while char in DIGITS:
+			char = self.stream.read()
+			tumor += char
+		number = self.parse_number(tumor)
+		return number
 
 	def parse_number(self, text):
 		'''Parses a string as a suffixed CSTN number'''
