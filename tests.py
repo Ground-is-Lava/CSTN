@@ -84,3 +84,12 @@ def test_dict():
 	assert(cstn.loads("({}{})") == cstn.HashableDict({EMPTY_LIST: EMPTY_LIST}))
 	assert(cstn.loads("(({}{})3d)") == cstn.HashableDict({ cstn.HashableDict({EMPTY_LIST: EMPTY_LIST}): 3 }))
 
+def test_readme():
+	assert(cstn.loads("{,hello',world'}") == cstn.HashableList(['hello', 'world']))
+	assert(cstn.loads("[,hello',world']") == ('hello', 'world'))
+	assert(cstn.loads("(,hello',world')") == cstn.HashableDict({'hello': 'world'}))
+	assert(cstn.loads('''{
+    FFhFFh1234d
+    (,key',value')
+    ({«hello»«world»},the previous list is the key for this value')
+}''') == cstn.HashableList([255, 255, 1234, cstn.HashableDict({'key': 'value'}), cstn.HashableDict({cstn.HashableList(['hello', 'world']): 'the previous list is the key for this value'})]))
