@@ -1,3 +1,8 @@
+# coding=UTF-8
+
+# Python 2 compatibility
+from __future__ import division, print_function, unicode_literals
+
 import cstn
 
 def test_number_16():
