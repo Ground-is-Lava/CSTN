@@ -36,7 +36,7 @@ class HashableDict(dict):
 	'''same as dict, but hashable'''
 
 	def __key(self):
-		return tuple((k, self[k]) for k in sorted(self))
+		return tuple((k, self[k]) for k in sorted(self, key=str))
 
 	def __hash__(self):
 		return hash(self.__key())

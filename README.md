@@ -1,9 +1,9 @@
-# CSTN
+# CSTN [![Build Status](https://travis-ci.org/Ground-is-Lava/CSTN.svg?branch=master)](https://travis-ci.org/Ground-is-Lava/CSTN) 
 CancerScript Tumor Notation is a lightweight data-interchange format. It is annoying for humans to read and write.
 
 A CancerScript Tumor Notation file contains a tumor, which may or may not contain additional tumors. There are 2 tumor types:
 
- * a benign tumor is a comment
+ * a benign tumor is a comment (not yet implemented)
  * a malignant tumor is an object, such as a list or a string
 
 Malignant tumors can identify as any of the following types (but only 1 at once):
