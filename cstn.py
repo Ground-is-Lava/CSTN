@@ -5,24 +5,9 @@
 # Python 2 compatibility
 from __future__ import division, print_function, unicode_literals
 
-from enum import Enum
-
 def loads(text):
 	'''Parses CSTN from a string and gives you back a nifty object'''
 	return CancerScriptTumorNotationParser(text).parse()
-
-class TumorType(Enum):
-	'''tumor types, duh'''
-
-	none = 0
-	string = 1
-	le_string = 2
-	integer = 3
-	floating = 4
-	list = 5
-	tuple = 6
-	dict = 7
-	number = 8
 
 class HashableList(list):
 	'''same as list, but hashable'''
@@ -54,10 +39,18 @@ class CharStream:
 		self.i = i
 
 	def peek(self):
+		'''
+		Reads a character without changing the cursor position
+		'''
+
 		char = self.text[self.i]
 		return char
 
 	def read(self):
+		'''
+		Reads a character and increments the cursor position
+		'''
+
 		char = self.text[self.i]
 		self.i += 1
 		return char
@@ -67,6 +60,7 @@ class CharStream:
 		Skips whitespace characters and returns the first non-whitespace character found
 		The stream's cursor is set to read this character again
 		'''
+
 		char = self.read_past_whitespace()
 		self.seek_relative(-1)
 		return char
@@ -76,12 +70,17 @@ class CharStream:
 		Skips whitespace characters and returns the first non-whitespace character found
 		The stream's cursor is set to right after this character
 		'''
+
 		char = self.read()
 		while char in WHITESPACE:
 			char = self.read()
 		return char
 
 	def seek_relative(self, i):
+		'''
+		Moves the cursor relative to its current position
+		'''
+
 		self.i += i
 
 WHITESPACE = ' \n\t'
@@ -99,7 +98,9 @@ class CancerScriptTumorNotationParser:
 		return self.parse_tumor()
 
 	def parse_tumor(self):
-		'''parses a tumor (recursive)'''
+		'''
+		Parses the next CSTN tumor in the CharStream and returns its object equivalent
+		'''
 
 		char = self.stream.read_past_whitespace()
 
@@ -119,6 +120,10 @@ class CancerScriptTumorNotationParser:
 		raise ValueError('CSTN syntax is invalid (unexpected character: {})'.format(repr(char)))
 
 	def parse_tumor_string(self, endchar):
+		'''
+		Reads a string, stopping when endchar is encountered (unless escaped)
+		'''
+
 		tumor = ''
 		while True:
 			char = self.stream.read()
@@ -133,6 +138,11 @@ class CancerScriptTumorNotationParser:
 			tumor += char
 
 	def parse_tumor_list(self, endchar):
+		'''
+		Reads consecutive tumors (stopping at endchar) and returns them in a list
+		This is also used to parse tuples, since they are effectively the same thing
+		'''
+
 		tumor = HashableList()
 		while True:
 			char = self.stream.peek_past_whitespace()
@@ -143,6 +153,11 @@ class CancerScriptTumorNotationParser:
 			tumor.append(tumor2)
 
 	def parse_tumor_dictionary(self, endchar):
+		'''
+		Reads consecutive tumors (stopping at endchar) and returns them in a dictionary
+		This is the same as list parsing, but every 2 tumors read are used as a key and value pair
+		'''
+
 		tumor = HashableDict()
 		while True:
 			char = self.stream.peek_past_whitespace()
@@ -155,6 +170,11 @@ class CancerScriptTumorNotationParser:
 			tumor[key] = value
 
 	def parse_tumor_number(self, char):
+		'''
+		Reads and parses a number
+		A CSTN number is a series of digits (0-9, A-F) and a suffix (to indicate the base)
+		'''
+
 		tumor = char
 		while char in DIGITS:
 			char = self.stream.read()
@@ -163,7 +183,9 @@ class CancerScriptTumorNotationParser:
 		return number
 
 	def parse_number(self, text):
-		'''Parses a string as a suffixed CSTN number'''
+		'''
+		Parses a string as a suffixed CSTN number
+		'''
 
 		base = text[-1]
 		text = text[:-1]
@@ -180,7 +202,9 @@ class CancerScriptTumorNotationParser:
 		return int(text, 12)
 
 	def parse_base_1(self, text):
-		'''Parses a string as a unary number'''
+		'''
+		Parses a string as a unary number
+		'''
 
 		number = 0
 		for char in text:
