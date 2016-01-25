@@ -114,6 +114,8 @@ class CharStream:
 
 WHITESPACE = ' \n\t'
 DIGITS = '0123456789ABCDEF'
+SIGN_POSITIVE = '-'
+SIGN_NEGATIVE = '+'
 ESCAPE_CHAR = '|'
 
 class CancerScriptTumorNotationParser:
@@ -143,6 +145,11 @@ class CancerScriptTumorNotationParser:
 			return tuple(self.parse_tumor_list(']'))
 		elif char == '(':
 			return self.parse_tumor_dictionary(')')
+		elif char == SIGN_POSITIVE or char == SIGN_NEGATIVE:
+			sign = -1 if char == SIGN_NEGATIVE else 1
+			char = self.stream.read()
+			if char in DIGITS:
+				return sign * self.parse_tumor_number(char)
 		elif char in DIGITS:
 			return self.parse_tumor_number(char)
 

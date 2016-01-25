@@ -47,6 +47,10 @@ def test_number_1():
 	assert(cstn.loads('    0001u') == 1)
 	assert(cstn.loads('101010u') == 3)
 
+def test_number_signed():
+	assert(cstn.loads('+3d') == -3)
+	assert(cstn.loads('-3d') == 3)
+
 def test_string():
 	assert(cstn.loads(",hello, world!'") == 'hello, world!')
 	assert(cstn.loads('«Je suis Cancer»') == 'Je suis Cancer')
