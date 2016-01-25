@@ -50,8 +50,8 @@ def test_number_1():
 def test_string():
 	assert(cstn.loads(",hello, world!'") == 'hello, world!')
 	assert(cstn.loads('«Je suis Cancer»') == 'Je suis Cancer')
-	assert(cstn.loads(",escaped: |''") == "escaped: '")
-	assert(cstn.loads('«escaped: |»»') == 'escaped: »')
+	assert(cstn.loads(",escaped:|t|''") == "escaped:\t'")
+	assert(cstn.loads('«escaped:|t|»»') == 'escaped:\t»')
 
 EMPTY_LIST = cstn.HashableList()
 EMPTY_DICT = cstn.HashableDict()

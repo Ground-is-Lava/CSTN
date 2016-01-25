@@ -80,8 +80,8 @@ class CharStream:
 		Reads a character and increments the cursor position
 		'''
 
-		char = self.text[self.i]
-		self.i += 1
+		char = self.peek()
+		self.seek_relative(1)
 		return char
 
 	def peek_past_whitespace(self):
