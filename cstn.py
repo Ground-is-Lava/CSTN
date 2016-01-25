@@ -9,6 +9,35 @@ def loads(text):
 	'''Parses CSTN from a string and gives you back a nifty object'''
 	return CancerScriptTumorNotationParser(text).parse()
 
+def parse_cstn_number(text):
+	'''
+	Parses a string as a suffixed CSTN number
+	'''
+
+	base = text[-1]
+	text = text[:-1]
+	if base == 'h':
+		return int(text, 16)
+	if base == 'd':
+		return int(text, 10)
+	if base == 'o':
+		return int(text, 8)
+	if base == 'b':
+		return int(text, 2)
+	if base == 'u':
+		return parse_base_1(text)
+	return int(text, 12)
+
+def parse_base_1(text):
+	'''
+	Parses a string as a unary number
+	'''
+
+	number = 0
+	for char in text:
+		number += int(char, 2)
+	return number
+
 class HashableList(list):
 	'''same as list, but hashable'''
 
@@ -179,34 +208,5 @@ class CancerScriptTumorNotationParser:
 		while char in DIGITS:
 			char = self.stream.read()
 			tumor += char
-		number = self.parse_number(tumor)
-		return number
-
-	def parse_number(self, text):
-		'''
-		Parses a string as a suffixed CSTN number
-		'''
-
-		base = text[-1]
-		text = text[:-1]
-		if base == 'h':
-			return int(text, 16)
-		if base == 'd':
-			return int(text, 10)
-		if base == 'o':
-			return int(text, 8)
-		if base == 'b':
-			return int(text, 2)
-		if base == 'u':
-			return self.parse_base_1(text)
-		return int(text, 12)
-
-	def parse_base_1(self, text):
-		'''
-		Parses a string as a unary number
-		'''
-
-		number = 0
-		for char in text:
-			number += int(char, 2)
+		number = parse_cstn_number(tumor)
 		return number
