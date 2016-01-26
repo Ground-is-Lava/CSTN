@@ -4,6 +4,7 @@
 from __future__ import division, print_function, unicode_literals
 
 import cstn
+from cstn.things import HashableList, HashableDict
 
 def test_number_16():
 	assert(cstn.loads('0h') == 0)
@@ -57,17 +58,17 @@ def test_string():
 	assert(cstn.loads(",escaped:|t|''") == "escaped:\t'")
 	assert(cstn.loads('«escaped:|t|»»') == 'escaped:\t»')
 
-EMPTY_LIST = cstn.HashableList()
-EMPTY_DICT = cstn.HashableDict()
+EMPTY_LIST = HashableList()
+EMPTY_DICT = HashableDict()
 
 def test_list():
 	assert(cstn.loads('{}') == EMPTY_LIST)
 	assert(cstn.loads('{ }') == EMPTY_LIST)
 	assert(cstn.loads('{\t}') == EMPTY_LIST)
 	assert(cstn.loads('{\n}') == EMPTY_LIST)
-	assert(cstn.loads('{1 2 3d}') == cstn.HashableList([1, 2, 3]))
-	assert(cstn.loads("{,1',2',3'}") == cstn.HashableList(['1', '2', '3']))
-	assert(cstn.loads("{,1'2d,3'}") == cstn.HashableList(['1', 2, '3']))
+	assert(cstn.loads('{1 2 3d}') == HashableList([1, 2, 3]))
+	assert(cstn.loads("{,1',2',3'}") == HashableList(['1', '2', '3']))
+	assert(cstn.loads("{,1'2d,3'}") == HashableList(['1', 2, '3']))
 
 def test_tuple():
 	assert(cstn.loads('[]') == ())
@@ -83,17 +84,17 @@ def test_dict():
 	assert(cstn.loads('( )') == EMPTY_DICT)
 	assert(cstn.loads('(\t)') == EMPTY_DICT)
 	assert(cstn.loads('(\n)') == EMPTY_DICT)
-	assert(cstn.loads('(1d2d3d4d)') == cstn.HashableDict({1: 2, 3: 4}))
-	assert(cstn.loads("(,1'2d3d«4»)") == cstn.HashableDict({'1': 2, 3: '4'}))
-	assert(cstn.loads("({}{})") == cstn.HashableDict({EMPTY_LIST: EMPTY_LIST}))
-	assert(cstn.loads("(({}{})3d)") == cstn.HashableDict({ cstn.HashableDict({EMPTY_LIST: EMPTY_LIST}): 3 }))
+	assert(cstn.loads('(1d2d3d4d)') == HashableDict({1: 2, 3: 4}))
+	assert(cstn.loads("(,1'2d3d«4»)") == HashableDict({'1': 2, 3: '4'}))
+	assert(cstn.loads("({}{})") == HashableDict({EMPTY_LIST: EMPTY_LIST}))
+	assert(cstn.loads("(({}{})3d)") == HashableDict({ HashableDict({EMPTY_LIST: EMPTY_LIST}): 3 }))
 
 def test_readme():
-	assert(cstn.loads("{,hello',world'}") == cstn.HashableList(['hello', 'world']))
+	assert(cstn.loads("{,hello',world'}") == HashableList(['hello', 'world']))
 	assert(cstn.loads("[,hello',world']") == ('hello', 'world'))
-	assert(cstn.loads("(,hello',world')") == cstn.HashableDict({'hello': 'world'}))
+	assert(cstn.loads("(,hello',world')") == HashableDict({'hello': 'world'}))
 	assert(cstn.loads('''{
     FFhFFh1234d
     (,key',value')
     ({«hello»«world»},the previous list is the key for this value')
-}''') == cstn.HashableList([255, 255, 1234, cstn.HashableDict({'key': 'value'}), cstn.HashableDict({cstn.HashableList(['hello', 'world']): 'the previous list is the key for this value'})]))
+}''') == HashableList([255, 255, 1234, HashableDict({'key': 'value'}), HashableDict({HashableList(['hello', 'world']): 'the previous list is the key for this value'})]))
