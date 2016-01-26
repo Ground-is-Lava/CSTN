@@ -5,9 +5,14 @@
 # Python 2 compatibility
 from __future__ import division, print_function, unicode_literals
 
+from cstn_unparse import unparse_tumor
+
 def loads(text):
 	'''Parses CSTN from a string and gives you back a nifty object'''
 	return CancerScriptTumorNotationParser(text).parse()
+
+def dump(tumor):
+	return unparse_tumor(tumor)
 
 def parse_cstn_number(text):
 	'''
@@ -105,6 +110,19 @@ class CharStream:
 			char = self.read()
 		return char
 
+	def read_while(self, condition):
+		char = self.peek()
+		string = ''
+		while True:
+			char = self.read()
+			if condition(char):
+				string += char
+			else:
+				self.seek_relative(-1)
+				break
+		return string
+
+
 	def seek_relative(self, i):
 		'''
 		Moves the cursor relative to its current position
@@ -116,7 +134,14 @@ WHITESPACE = ' \n\t'
 DIGITS = '0123456789ABCDEF'
 SIGN_POSITIVE = '-'
 SIGN_NEGATIVE = '+'
+
 ESCAPE_CHAR = '|'
+ESCAPES = {
+	'n': '\n',
+	't': '\t',
+	"'": "'",
+}
+ESCAPES_INVERSE = {v: k for k, v in ESCAPES.items()}
 
 class CancerScriptTumorNotationParser:
 	'''this crap parses CancerScript Tumer Notation'''
@@ -167,10 +192,8 @@ class CancerScriptTumorNotationParser:
 				return tumor
 			if char == ESCAPE_CHAR:
 				char = self.stream.read()
-				if char == 'n':
-					char = '\n'
-				elif char == 't':
-					char = '\t'
+				if char in ESCAPES:
+					char = ESCAPES[char]
 			tumor += char
 
 	def parse_tumor_list(self, endchar):
@@ -180,13 +203,11 @@ class CancerScriptTumorNotationParser:
 		'''
 
 		tumor = HashableList()
-		while True:
-			char = self.stream.peek_past_whitespace()
-			if char == endchar:
-				self.stream.seek_relative(1)
-				return tumor
+		while self.stream.peek_past_whitespace() != endchar:
 			tumor2 = self.parse_tumor()
 			tumor.append(tumor2)
+		self.stream.seek_relative(1)
+		return tumor
 
 	def parse_tumor_dictionary(self, endchar):
 		'''
@@ -195,25 +216,21 @@ class CancerScriptTumorNotationParser:
 		'''
 
 		tumor = HashableDict()
-		while True:
-			char = self.stream.peek_past_whitespace()
-			if char == endchar:
-				self.stream.seek_relative(1)
-				return tumor
+		while self.stream.peek_past_whitespace() != endchar:
 			key = self.parse_tumor()
 			self.stream.peek_past_whitespace()
 			value = self.parse_tumor()
 			tumor[key] = value
+		self.stream.seek_relative(1)
+		return tumor
 
-	def parse_tumor_number(self, char):
+	def parse_tumor_number(self, firstchar):
 		'''
 		Reads and parses a number
 		A CSTN number is a series of digits (0-9, A-F) and a suffix (to indicate the base)
 		'''
 
-		tumor = char
-		while char in DIGITS:
-			char = self.stream.read()
-			tumor += char
-		number = parse_cstn_number(tumor)
-		return number
+		tumor = firstchar
+		tumor += self.stream.read_while(lambda c: c in DIGITS)
+		tumor += self.stream.read()
+		return parse_cstn_number(tumor)
