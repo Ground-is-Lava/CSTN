@@ -7,7 +7,7 @@ functions for converting objects to CSTN
 # Python 2 compatibility
 from __future__ import division, print_function, unicode_literals
 
-import cstn
+from .things import *
 
 def unparse_tumor(tumor):
 	'''
@@ -35,9 +35,9 @@ def unparse_string(tumor_string):
 
 	string = ','
 	for char in tumor_string:
-		if char in cstn.ESCAPES_INVERSE:
-			string += cstn.ESCAPE_CHAR
-			char = cstn.ESCAPES_INVERSE[char]
+		if char in ESCAPES_INVERSE:
+			string += ESCAPE_CHAR
+			char = ESCAPES_INVERSE[char]
 		string += char
 	string += "'"
 	return string
@@ -66,9 +66,9 @@ def unparse_int(tumor_int):
 	# TODO: use base 12
 	string = int_to_base(tumor_int, 10)
 	if string[0] == '-':
-		string = cstn.SIGN_NEGATIVE + string[1:]
+		string = SIGN_NEGATIVE + string[1:]
 	elif string[0] == '+': # not going to happen, but check anyway just in case
-		string = cstn.SIGN_POSITIVE + string[1:]
+		string = SIGN_POSITIVE + string[1:]
 	string += 'd'
 	return string
 

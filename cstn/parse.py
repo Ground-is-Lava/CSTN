@@ -5,14 +5,8 @@
 # Python 2 compatibility
 from __future__ import division, print_function, unicode_literals
 
-from cstn_unparse import unparse_tumor
-
-def loads(text):
-	'''Parses CSTN from a string and gives you back a nifty object'''
-	return CancerScriptTumorNotationParser(text).parse()
-
-def dump(tumor):
-	return unparse_tumor(tumor)
+from .unparse import unparse_tumor
+from .things import *
 
 def parse_cstn_number(text):
 	'''
@@ -42,30 +36,6 @@ def parse_base_1(text):
 	for char in text:
 		number += int(char, 2)
 	return number
-
-class HashableList(list):
-	'''same as list, but hashable'''
-
-	def __key(self):
-		return tuple(self)
-
-	def __hash__(self):
-		return hash(self.__key())
-
-	def __eq__(self, other):
-		return self.__key() == other.__key()
-
-class HashableDict(dict):
-	'''same as dict, but hashable'''
-
-	def __key(self):
-		return tuple((k, self[k]) for k in sorted(self, key=str))
-
-	def __hash__(self):
-		return hash(self.__key())
-
-	def __eq__(self, other):
-		return self.__key() == other.__key()
 
 class CharStream:
 	def __init__(self, text, i=0):
@@ -129,19 +99,6 @@ class CharStream:
 		'''
 
 		self.i += i
-
-WHITESPACE = ' \n\t'
-DIGITS = '0123456789ABCDEF'
-SIGN_POSITIVE = '-'
-SIGN_NEGATIVE = '+'
-
-ESCAPE_CHAR = '|'
-ESCAPES = {
-	'n': '\n',
-	't': '\t',
-	"'": "'",
-}
-ESCAPES_INVERSE = {v: k for k, v in ESCAPES.items()}
 
 class CancerScriptTumorNotationParser:
 	'''this crap parses CancerScript Tumer Notation'''
