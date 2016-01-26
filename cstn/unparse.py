@@ -9,13 +9,19 @@ from __future__ import division, print_function, unicode_literals
 
 from .things import *
 
+import sys
+if sys.version_info >= (3,0,0):
+	string_type = str
+else:
+	string_type = basestring
+
 def unparse_tumor(tumor):
 	'''
 	Returns the CSTN representation of a Python object
 	Chucks an error if the object type has no CSTN conversion
 	'''
 
-	if isinstance(tumor, str):
+	if isinstance(tumor, string_type):
 		return unparse_string(tumor)
 	if isinstance(tumor, list):
 		return unparse_list(tumor, '{', '}')
