@@ -5,7 +5,6 @@
 # Python 2 compatibility
 from __future__ import division, print_function, unicode_literals
 
-from .unparse import unparse_tumor
 from .things import *
 
 def parse_cstn_number(text):
