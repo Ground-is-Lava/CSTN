@@ -11,6 +11,14 @@ ESCAPES = {
 }
 ESCAPES_INVERSE = {v: k for k, v in ESCAPES.items()}
 
+BASES = {
+	'h': 16,
+	'd': 10,
+	'o': 8,
+	'b': 2,
+	'u': 1,
+}
+
 class HashableList(list):
 	'''same as list, but hashable'''
 

@@ -14,17 +14,11 @@ def parse_cstn_number(text):
 
 	base = text[-1]
 	text = text[:-1]
-	if base == 'h':
-		return int(text, 16)
-	if base == 'd':
-		return int(text, 10)
-	if base == 'o':
-		return int(text, 8)
-	if base == 'b':
-		return int(text, 2)
 	if base == 'u':
 		return parse_base_1(text)
-	return int(text, 12)
+	if base in BASES:
+		return int(text, BASES[base])
+	return int(text + base, 12)
 
 def parse_base_1(text):
 	'''
@@ -46,8 +40,9 @@ class CharStream:
 		Reads a character without changing the cursor position
 		'''
 
-		char = self.text[self.i]
-		return char
+		if self.i < len(self.text):
+			return self.text[self.i]
+		return 'EOF' # this is a bad idea, but it works (for now)
 
 	def read(self):
 		'''
@@ -188,5 +183,8 @@ class CancerScriptTumorNotationParser:
 
 		tumor = firstchar
 		tumor += self.stream.read_while(lambda c: c in DIGITS)
-		tumor += self.stream.read()
+		base = self.stream.peek()
+		if base in BASES:
+			tumor += base
+			self.stream.seek_relative(1)
 		return parse_cstn_number(tumor)

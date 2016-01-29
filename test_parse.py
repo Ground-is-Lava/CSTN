@@ -14,11 +14,11 @@ def test_number_16():
 	assert(cstn.loads('    000Fh') == 15)
 
 def test_number_12():
-	assert(cstn.loads('0 ') == 0)
-	assert(cstn.loads('1\t') == 1)
-	assert(cstn.loads('AB\n') == 131)
-	assert(cstn.loads('1234 ') == 2056)
-	assert(cstn.loads('    000B ') == 11)
+	assert(cstn.loads('0') == 0)
+	assert(cstn.loads('1') == 1)
+	assert(cstn.loads('AB') == 131)
+	assert(cstn.loads('1234') == 2056)
+	assert(cstn.loads('    000B') == 11)
 
 def test_number_10():
 	assert(cstn.loads('0d') == 0)
@@ -75,9 +75,9 @@ def test_tuple():
 	assert(cstn.loads('[ ]') == ())
 	assert(cstn.loads('[\t]') == ())
 	assert(cstn.loads('[\n]') == ())
-	assert(cstn.loads('[1 2 3d]') == (1, 2, 3))
+	assert(cstn.loads('[1 2 3]') == (1, 2, 3))
 	assert(cstn.loads("[,1',2',3']") == ('1', '2', '3'))
-	assert(cstn.loads("[,1'2d,3']") == ('1', 2, '3'))
+	assert(cstn.loads("[,1'2,3']") == ('1', 2, '3'))
 
 def test_dict():
 	assert(cstn.loads('()') == EMPTY_DICT)

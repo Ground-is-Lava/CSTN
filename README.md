@@ -19,9 +19,8 @@ Strings can be written in 2 ways:
  * ,pseudoGerman'
  * «French»
 
-There are several number suffixes available:
+All numbers are base 12 by default. There are several number suffixes available for when a different base is desired:
 
- * any whitespace char: base 12
  * h: base 16
  * d: base 10
  * o: base 8
